@@ -1,0 +1,186 @@
+import pygame
+import math
+from datetime import datetime
+
+pygame.init()
+screen_size = (640, 480)
+screen = pygame.display.set_mode(screen_size)
+screen.fill((197, 234, 250)) # baby blå farve
+
+
+start_position = (screen_size[0]/2, screen_size[1]/2) 
+radius = 200
+
+# Farger for panda
+ear_color = (0, 0, 0)   
+eye_color = (0, 0, 0) 
+nose_color = (0, 0, 0)
+mouth_color = (0, 0, 0)
+text_color = (0, 0, 0)
+
+# Indlæs skrifttype
+font = pygame.font.SysFont("Arial", 30)
+
+
+while True:
+    screen.fill((197, 234, 250)) # baby blå farve
+
+    # Tegn bamseører 
+    ear_radius = 65
+    ear_offset_x = 180
+    ear_offset_y = -150
+    pygame.draw.circle(screen, ear_color, (start_position[0] - ear_offset_x, start_position[1] + ear_offset_y), ear_radius)
+    pygame.draw.circle(screen, ear_color, (start_position[0] + ear_offset_x, start_position[1] + ear_offset_y), ear_radius)
+
+    # pandas ansigt
+    pygame.draw.circle(screen, (255, 255, 255), start_position, radius)
+
+    # Øjejusteringer for en mere buet effekt
+    eye_width_outer_left = 100  # Venstre øje bredde (buet mod højre)
+    eye_height_outer_left = 60  # Venstre øje højde
+
+    eye_width_outer_right = 100  # Højre øje bredde (buet mod venstre)
+    eye_height_outer_right = 60  # Højre øje højde
+
+    eye_radius_middle = 20  # Midterste cirkel (hvid)
+    eye_radius_inner = 10  # Indre cirkel (sort)
+
+    eye_offset_x = 90
+    eye_offset_y = -50
+
+    # Opret en overflade for venstre øje (buet mod højre) og roter det
+    left_eye_surface = pygame.Surface((eye_width_outer_left, eye_height_outer_left), pygame.SRCALPHA)
+    pygame.draw.ellipse(left_eye_surface, (0, 0, 0), (0, 0, eye_width_outer_left, eye_height_outer_left))
+    left_eye_surface_rotated = pygame.transform.rotate(left_eye_surface, 30)  # Roter venstre øje 30 grader
+    left_eye_rect = left_eye_surface_rotated.get_rect(center=(start_position[0] - eye_offset_x + 20, start_position[1] + eye_offset_y))
+    screen.blit(left_eye_surface_rotated, left_eye_rect)
+
+    # Tegn cirkler inde i venstre øje
+    pygame.draw.circle(screen, (255, 255, 255), (start_position[0] - eye_offset_x + 20, start_position[1] + eye_offset_y), eye_radius_middle)  # Hvid midte
+    pygame.draw.circle(screen, (0, 0, 0), (start_position[0] - eye_offset_x + 20, start_position[1] + eye_offset_y), eye_radius_inner)  # Sort indre
+
+    # Opret en overflade for højre øje (buet mod venstre) og roter det
+    right_eye_surface = pygame.Surface((eye_width_outer_right, eye_height_outer_right), pygame.SRCALPHA)
+    pygame.draw.ellipse(right_eye_surface, (0, 0, 0), (0, 0, eye_width_outer_right, eye_height_outer_right))
+    right_eye_surface_rotated = pygame.transform.rotate(right_eye_surface, -30)  # Roter højre øje -30 grader
+    right_eye_rect = right_eye_surface_rotated.get_rect(center=(start_position[0] + eye_offset_x - 20, start_position[1] + eye_offset_y))
+    screen.blit(right_eye_surface_rotated, right_eye_rect)
+
+    # Tegn cirkler inde i højre øje
+    pygame.draw.circle(screen, (255, 255, 255), (start_position[0] + eye_offset_x - 20, start_position[1] + eye_offset_y), eye_radius_middle)  # Hvid midte
+    pygame.draw.circle(screen, (0, 0, 0), (start_position[0] + eye_offset_x - 20, start_position[1] + eye_offset_y), eye_radius_inner)  # Sort indre
+  
+    # Tegn panda næse 
+    nose_radius = 20
+    nose_offset_y = -5 
+    pygame.draw.circle(screen, nose_color, (start_position[0], start_position[1] + nose_offset_y), nose_radius)
+
+    # Tegn bjørnemund 
+    mouth_color = (0, 0, 0)  # Farve på munden
+    mouth_width = 60  # Bredden på munden
+    mouth_height = 30  # Højden på munden
+    mouth_offset_y = 15  # Hvor langt munden skal være under næsen
+
+    mouth_rect = (start_position[0] - mouth_width // 2, 
+              start_position[1] + nose_offset_y + nose_radius + mouth_offset_y, 
+              mouth_width, 
+              mouth_height)
+
+    pygame.draw.arc(screen, mouth_color, mouth_rect, math.radians(180), math.radians(360), 3)
+    line_length = 40 
+    pygame.draw.line(screen, mouth_color, 
+                 (start_position[0], start_position[1] + nose_offset_y + nose_radius), 
+                 (start_position[0], start_position[1] + nose_offset_y + nose_radius + line_length), 3)
+    
+    # Tegn tal fra 1 til 12
+    for hour in range(1, 13):
+        angle = 360 / 12 * (hour - 3) 
+        # Beregn position for tallet 
+        x = start_position[0] + (radius - 42) * math.cos(math.radians(angle))  # Afstand til tallet
+        y = start_position[1] + (radius - 42) * math.sin(math.radians(angle))  # Afstand til tallet
+        
+        text_surface = font.render(str(hour), True, text_color)
+        text_rect = text_surface.get_rect(center=(x, y))
+        screen.blit(text_surface, text_rect)
+
+    for minute in range(60):
+        angle_minute = 360 / 60 * minute
+        
+        # Startposisjon for linjene 
+        outer_offset = [radius * math.cos(math.radians(angle_minute)), radius * math.sin(math.radians(angle_minute))]
+        outer_position = (start_position[0] + outer_offset[0], start_position[1] + outer_offset[1])
+        
+        # Hvis det er hvert 5. minutt, lag lengre linje
+        if minute % 5 == 0:
+            inner_offset = [(radius - 25) * math.cos(math.radians(angle_minute)), (radius - 25) * math.sin(math.radians(angle_minute))]
+            line_width = 4  # Større linje
+        else:
+            # Kortere linje for andre minutter
+            inner_offset = [(radius - 15) * math.cos(math.radians(angle_minute)), (radius - 15) * math.sin(math.radians(angle_minute))]
+            line_width = 2  # Tynnere linje
+        
+        inner_position = (start_position[0] + inner_offset[0], start_position[1] + inner_offset[1])
+        
+        # Tegn linjen
+        pygame.draw.line(screen, (0, 0, 0), outer_position, inner_position, line_width)
+
+
+    # Beregn rotation af visere
+    now = datetime.now()
+    second = now.second + now.microsecond / 1_000_000  
+    minute = now.minute + second / 60  
+    hour = now.hour % 12 + minute / 60  
+
+    # Tegn sekundviser
+    second_angle = 360 / 60 * second
+    second_offset = [0.76 * radius * math.cos(math.radians(second_angle)), 0.76 * radius * math.sin(math.radians(second_angle))]
+    second_position = (start_position[0] + second_offset[0], start_position[1] + second_offset[1])
+    pygame.draw.line(screen, (255, 0, 0), start_position, second_position, 2)
+
+    # Tegn minutviser med pil
+    minute_angle = 360 / 60 * minute
+    minute_offset = [0.72 * radius * math.cos(math.radians(minute_angle)), 0.72 * radius * math.sin(math.radians(minute_angle))]
+    minute_position = (start_position[0] + minute_offset[0], start_position[1] + minute_offset[1])
+    pygame.draw.line(screen, (140, 255, 157), start_position, minute_position, 4)
+
+    # Tegn pil til minutviser
+    minute_arrow_length = 15  # Længde af pilen
+    minute_arrow_width = 8     # Bredde af pilen
+    minute_arrow = [
+        minute_position,
+        (minute_position[0] + minute_arrow_length * math.cos(math.radians(minute_angle + 120)), minute_position[1] + minute_arrow_length * math.sin(math.radians(minute_angle + 120))),
+        (minute_position[0] + minute_arrow_length * math.cos(math.radians(minute_angle - 120)), minute_position[1] + minute_arrow_length * math.sin(math.radians(minute_angle - 120)))
+    ]
+    pygame.draw.polygon(screen, (140, 255, 157), minute_arrow)
+
+    # Tegn timeviser med pil
+    hour_angle = 360 / 12 * hour
+    hour_offset = [0.62 * radius * math.cos(math.radians(hour_angle)), 0.62 * radius * math.sin(math.radians(hour_angle))]
+    hour_position = (start_position[0] + hour_offset[0], start_position[1] + hour_offset[1])
+    pygame.draw.line(screen, (29, 94, 184), start_position, hour_position, 5)
+
+    # Tegn pil til timeviser
+    hour_arrow_length = 20  # Længde af pilen
+    hour_arrow_width = 10    # Bredde af pilen
+    hour_arrow = [
+        hour_position,
+        (hour_position[0] + hour_arrow_length * math.cos(math.radians(hour_angle + 120)), hour_position[1] + hour_arrow_length * math.sin(math.radians(hour_angle + 120))),
+        (hour_position[0] + hour_arrow_length * math.cos(math.radians(hour_angle - 120)), hour_position[1] + hour_arrow_length * math.sin(math.radians(hour_angle - 120)))
+    ]
+    pygame.draw.polygon(screen, (29, 94, 184), hour_arrow)
+
+    # Tegn panda næse 
+    nose_radius = 20
+    nose_offset_y = -5  
+    pygame.draw.circle(screen, nose_color, (start_position[0], start_position[1] + nose_offset_y), nose_radius)
+
+
+    # Tegn sirkelen (klokkerammen)
+    pygame.draw.circle(screen, (0, 0, 0), start_position, radius, 5)
+
+    pygame.display.flip()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
